@@ -8,9 +8,11 @@ A browser-based side-scrolling platformer built with [Phaser 3](https://phaser.i
 
 ## Quick links
 
-- **GitHub Pages URL:** <https://ghlearn.github.io/agentic-world-legends/>
-- **Pages deploy workflow:** `.github/workflows/deploy.yml`
-- **Actions runs:** <https://github.com/ghlearn/agentic-world-legends/actions>
+> **Upstream repo links** — if you copied this repo, replace `ghlearn/agentic-world-legends` with your `org/repo`.
+
+- **GitHub Pages URL (upstream):** <https://ghlearn.github.io/agentic-world-legends/>
+- **Pages deploy workflow:** [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+- **Actions runs (upstream):** <https://github.com/ghlearn/agentic-world-legends/actions>
 
 ## Credential progression
 
