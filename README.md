@@ -6,6 +6,12 @@ A browser-based side-scrolling platformer built with [Phaser 3](https://phaser.i
 > Traverse six credential realms, restore the sacred Mainline, and become a
 > legend of the Agentic World.
 
+## Quick links
+
+- **GitHub Pages URL:** <https://ghlearn.github.io/agentic-world-legends/>
+- **Pages deploy workflow:** `.github/workflows/deploy.yml`
+- **Actions runs:** <https://github.com/ghlearn/agentic-world-legends/actions>
+
 ## Credential progression
 
 The campaign now runs through six end-of-level credential gates:
@@ -118,6 +124,13 @@ For local canvas mode, local browser run, and local CI-equivalent checks, see:
 
 Successful pushes to `main` are built and published to GitHub Pages by
 `.github/workflows/deploy.yml`.
+
+To enable and use deployment in a copied repo:
+
+1. Go to **Settings -> Pages**.
+2. Set **Source** to **GitHub Actions**.
+3. Push to `main`.
+4. Open the latest run in **Actions** and verify `Deploy to GitHub Pages` succeeds.
 
 ## Release structure
 

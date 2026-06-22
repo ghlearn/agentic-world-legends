@@ -37,6 +37,9 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
