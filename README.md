@@ -78,23 +78,15 @@ If you're running the game on a custom domain (e.g., staging or production):
 
 - Open canvas with `{ "mode": "pages", "url": "https://your-custom-domain.com/" }`
 
-## Clone or template from GitHub.com (secondary path)
+## Copy to your namespace (secondary path)
 
-Use this flow when you want your own copy/repo; gameplay is still intended in
-the GitHub Copilot App canvas.
+Use this flow when you want your own copy of the game repo (e.g., `https://github.com/your-username/agentic-world-legends`);
+gameplay is still intended in the GitHub Copilot App canvas.
 
-**Fork this repo** to contribute changes back, or **use the template** to create
-a personal copy:
+### Copy as a template
 
-### Forking (to contribute)
-
-1. Click **Fork** on GitHub to create your own copy.
-2. Make changes and open a pull request.
-
-### Using as a template (to create a personal repo)
-
-1. Mark the repo as a template in GitHub settings.
-2. Click **Use this template** to create your own repo.
+1. Click **Use this template** → **Create a new repository**.
+2. Name it (e.g., `agentic-world-legends`) and choose your namespace.
 3. Enable GitHub Pages (source: GitHub Actions).
 4. Push to `main` to trigger `.github/workflows/deploy.yml`.
 5. Open that repo in GitHub Copilot App and launch `agentic-world-launcher`.
@@ -102,6 +94,14 @@ a personal copy:
 **Note:** `vite.config.ts` and deployment workflows are template-friendly: base path is
 computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
 under `/<your-repo-name>/` without hardcoding.
+
+### Contributing back
+
+If you'd like to contribute improvements back to the main repo:
+
+1. Fork this repository.
+2. Make changes in your fork.
+3. Open a pull request to the upstream repository.
 
 ### Troubleshooting
 
