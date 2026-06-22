@@ -55,14 +55,22 @@ you can play inside a Copilot App canvas.
 
 ### Local dev path (play in canvas against localhost)
 
-1. Install and start the local dev server:
+**Workflow:**
+
+1. Open this repo in GitHub Copilot App (terminal panel available).
+2. In the Copilot App terminal, run:
    ```bash
    pnpm install
    pnpm run assets
    pnpm run dev
    ```
-2. In your Copilot workspace, reload extensions (same as above).
-3. Open canvas `agentic-world-launcher` with `{ "mode": "local" }`.
+   This starts the dev server on `http://localhost:5173/` (leave it running).
+3. Restart GitHub Copilot App to reload extensions.
+4. Once restarted, reload extensions: **Extensions** → **Reload extensions**.
+5. Open canvas `agentic-world-launcher` with `{ "mode": "local" }`.
+6. Play! The canvas iframes your local dev server. 🎮
+
+**Keep the dev server running:** The `pnpm run dev` terminal must stay active. Leave it in the background.
 
 Default local dev URL: <http://localhost:5173/>
 
