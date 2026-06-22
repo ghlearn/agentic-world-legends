@@ -52,6 +52,8 @@ you can play inside a Copilot App canvas.
 3. Open canvas `agentic-world-launcher` with `{ "mode": "pages" }`.
 4. Play! 🎮
 
+Default published URL: <https://ghlearn.github.io/agentic-world-legends/>
+
 ### Local dev path (play in canvas against localhost)
 
 **Workflow:**
@@ -99,7 +101,7 @@ gameplay is still intended in the GitHub Copilot App canvas.
 5. Open that repo in GitHub Copilot App and open canvas `agentic-world-launcher` with `{ "mode": "pages", "url": "https://<owner>.github.io/<repo>/" }` (or run action `set_target` with the same `url`).
 
 **Note:** `vite.config.ts` and deployment workflows are template-friendly: base path is
-computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
+computed from repository name in CI, so copied repos deploy
 under `/<your-repo-name>/` without hardcoding.
 
 ### Contributing back
@@ -129,6 +131,16 @@ pnpm run dev
 
 Default dev URL: <http://localhost:5173/>
 
+### Local quality checks (CI-equivalent)
+
+Run these before opening or updating a pull request:
+
+```bash
+pnpm exec tsc --noEmit
+pnpm test
+pnpm build
+```
+
 Build + preview:
 
 ```bash
@@ -138,8 +150,14 @@ pnpm run preview
 
 ## Deploy
 
-Pushes to `main` are built and published to GitHub Pages by
+Successful pushes to `main` are built and published to GitHub Pages by
 `.github/workflows/deploy.yml`.
+
+## Release structure
+
+Releases follow Semantic Versioning (major/minor/patch). See
+[`docs/release-process.md`](docs/release-process.md) for the exact bump rules and
+the required version + changelog + tag + release flow.
 
 ## Project layout
 
