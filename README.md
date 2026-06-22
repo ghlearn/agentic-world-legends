@@ -54,26 +54,14 @@ you can play inside a Copilot App canvas.
 
 Default published URL: <https://ghlearn.github.io/agentic-world-legends/>
 
-### Local dev path (play in canvas against localhost)
+### Play from GitHub Pages in a browser extension or browser tab
 
-**Workflow:**
+Use the published URL directly:
 
-1. Open this repo in GitHub Copilot App (terminal panel available).
-2. In the Copilot App terminal, run:
-   ```bash
-   pnpm install
-   pnpm run assets
-   pnpm run dev
-   ```
-   This starts the dev server on `http://localhost:5173/` (leave it running).
-3. Restart GitHub Copilot App to reload extensions.
-4. Once restarted, reload extensions: **Extensions** → **Reload extensions**.
-5. Open canvas `agentic-world-launcher` with `{ "mode": "local" }`.
-6. Play! The canvas iframes your local dev server. 🎮
+- <https://ghlearn.github.io/agentic-world-legends/>
 
-**Keep the dev server running:** The `pnpm run dev` terminal must stay active. Leave it in the background.
-
-Default local dev URL: <http://localhost:5173/>
+If your browser extension supports opening a URL/webview panel, set it to the
+same GitHub Pages URL above.
 
 #### Switching between modes
 
@@ -121,32 +109,10 @@ If you'd like to contribute improvements back to the main repo:
 - **GitHub Pages not live?** Verify that GitHub Pages is enabled (source: GitHub Actions)
   and that `.github/workflows/deploy.yml` has completed successfully.
 
-## Run locally without canvas
+## Local development instructions
 
-```bash
-pnpm install
-pnpm run assets
-pnpm run dev
-```
-
-Default dev URL: <http://localhost:5173/>
-
-### Local quality checks (CI-equivalent)
-
-Run these before opening or updating a pull request:
-
-```bash
-pnpm exec tsc --noEmit
-pnpm test
-pnpm build
-```
-
-Build + preview:
-
-```bash
-pnpm run build
-pnpm run preview
-```
+For local canvas mode, local browser run, and local CI-equivalent checks, see:
+[`docs/local-development.md`](docs/local-development.md).
 
 ## Deploy
 
