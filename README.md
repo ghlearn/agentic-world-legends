@@ -35,7 +35,84 @@ question set intentionally excludes Applied Skills topics.
 | Mute / unmute | `M` |
 | Continue dialog | `Space` / `Enter` / click |
 
-## Run locally
+## Play in GitHub Copilot App (recommended)
+
+This repo includes `.github/extensions/agentic-world-launcher/extension.mjs` so
+you can play inside a Copilot App canvas.
+
+### Prerequisites
+
+- [GitHub Copilot CLI](https://github.com/copilot-cli/copilot-cli) or the GitHub Copilot App
+  installed and running.
+- Repository opened in a Copilot workspace session.
+
+### Fastest path (play from GitHub Pages)
+
+1. Open this repository in the GitHub Copilot App.
+2. In your Copilot workspace, select **Extensions** → **Reload extensions** (or restart the session).
+3. Open canvas `agentic-world-launcher` with `{ "mode": "pages" }`.
+4. Play! 🎮
+
+### Local dev path (play in canvas against localhost)
+
+1. Install and start the local dev server:
+   ```bash
+   pnpm install
+   pnpm run assets
+   pnpm run dev
+   ```
+2. In your Copilot workspace, reload extensions (same as above).
+3. Open canvas `agentic-world-launcher` with `{ "mode": "local" }`.
+
+Default local dev URL: <http://localhost:5173/>
+
+#### Switching between modes
+
+You can switch between local dev and GitHub Pages at any time without restarting:
+
+- Open the same canvas and run action `set_target` with `{ "mode": "pages" }` or `{ "mode": "local" }`.
+
+#### Custom deployment URLs
+
+If you're running the game on a custom domain (e.g., staging or production):
+
+- Open canvas with `{ "mode": "pages", "url": "https://your-custom-domain.com/" }`
+
+## Clone or template from GitHub.com (secondary path)
+
+Use this flow when you want your own copy/repo; gameplay is still intended in
+the GitHub Copilot App canvas.
+
+**Fork this repo** to contribute changes back, or **use the template** to create
+a personal copy:
+
+### Forking (to contribute)
+
+1. Click **Fork** on GitHub to create your own copy.
+2. Make changes and open a pull request.
+
+### Using as a template (to create a personal repo)
+
+1. Mark the repo as a template in GitHub settings.
+2. Click **Use this template** to create your own repo.
+3. Enable GitHub Pages (source: GitHub Actions).
+4. Push to `main` to trigger `.github/workflows/deploy.yml`.
+5. Open that repo in GitHub Copilot App and launch `agentic-world-launcher`.
+
+**Note:** `vite.config.ts` and deployment workflows are template-friendly: base path is
+computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
+under `/<your-repo-name>/` without hardcoding.
+
+### Troubleshooting
+
+- **Canvas not loading?** Ensure extensions are reloaded in your Copilot workspace
+  and that you're using a valid `mode` (`"local"` or `"pages"`).
+- **Local dev not working?** Check that `pnpm run dev` is running on <http://localhost:5173/> and
+  refresh the canvas.
+- **GitHub Pages not live?** Verify that GitHub Pages is enabled (source: GitHub Actions)
+  and that `.github/workflows/deploy.yml` has completed successfully.
+
+## Run locally without canvas
 
 ```bash
 pnpm install
@@ -51,30 +128,6 @@ Build + preview:
 pnpm run build
 pnpm run preview
 ```
-
-## Canvas launcher extension (project-scoped)
-
-This repo includes `.github/extensions/agentic-world-launcher/extension.mjs`.
-After extensions are reloaded, open/play from canvas with:
-
-- **Local mode** (recommended while developing): run `pnpm run dev`, then open
-  canvas `agentic-world-launcher` with `{ "mode": "local" }`
-- **Pages mode**: open canvas with `{ "mode": "pages" }`
-
-You can switch targets using action `set_target`.
-
-## Template-repo usage
-
-This project is ready for template copying:
-
-1. Mark the repo as a template in GitHub settings.
-2. Click **Use this template** to create your own repo.
-3. Enable GitHub Pages (source: GitHub Actions).
-4. Push to `main` to trigger `.github/workflows/deploy.yml`.
-
-`vite.config.ts` and deployment workflows are template-friendly: base path is
-computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
-under `/<your-repo-name>/` without hardcoding.
 
 ## Deploy
 
