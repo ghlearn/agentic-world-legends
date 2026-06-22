@@ -34,10 +34,9 @@ jobs:
         run: pnpm test
 
       - name: Build
-        run: pnpm build
+        run: pnpm run assets && vite build
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
-
       - name: Package build artifact
         run: tar -czf agentic-world-legends-dist.tar.gz dist
 
