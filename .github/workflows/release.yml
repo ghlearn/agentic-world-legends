@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+      - name: Package build artifact
+        run: tar -czf agentic-world-legends-dist.tar.gz dist
+
+      - name: Prepare release notes from changelog
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          SECTION_HEADER="## [${VERSION}]"
+          FOUND=0
+          > release-notes.md
+
+          while IFS= read -r line; do
+            if [ "$FOUND" -eq 0 ]; then
+              case "$line" in
+                "${SECTION_HEADER}"*)
+                  FOUND=1
+                  echo "$line" >> release-notes.md
+                  ;;
+              esac
+            else
+              case "$line" in
+                "## ["*)
+                  break
+                  ;;
+                *)
+                  echo "$line" >> release-notes.md
+                  ;;
+              esac
+            fi
+          done < CHANGELOG.md
+
+          if [ "$FOUND" -eq 0 ]; then
+            echo "Missing CHANGELOG section for ${VERSION}. Add '## [${VERSION}] ...' before tagging." >&2
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          files: agentic-world-legends-dist.tar.gz

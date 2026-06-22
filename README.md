@@ -52,26 +52,16 @@ you can play inside a Copilot App canvas.
 3. Open canvas `agentic-world-launcher` with `{ "mode": "pages" }`.
 4. Play! 🎮
 
-### Local dev path (play in canvas against localhost)
+Default published URL: <https://ghlearn.github.io/agentic-world-legends/>
 
-**Workflow:**
+### Play from GitHub Pages in a browser extension or browser tab
 
-1. Open this repo in GitHub Copilot App (terminal panel available).
-2. In the Copilot App terminal, run:
-   ```bash
-   pnpm install
-   pnpm run assets
-   pnpm run dev
-   ```
-   This starts the dev server on `http://localhost:5173/` (leave it running).
-3. Restart GitHub Copilot App to reload extensions.
-4. Once restarted, reload extensions: **Extensions** → **Reload extensions**.
-5. Open canvas `agentic-world-launcher` with `{ "mode": "local" }`.
-6. Play! The canvas iframes your local dev server. 🎮
+Use the published URL directly:
 
-**Keep the dev server running:** The `pnpm run dev` terminal must stay active. Leave it in the background.
+- <https://ghlearn.github.io/agentic-world-legends/>
 
-Default local dev URL: <http://localhost:5173/>
+If your browser extension supports opening a URL/webview panel, set it to the
+same GitHub Pages URL above.
 
 #### Switching between modes
 
@@ -99,7 +89,7 @@ gameplay is still intended in the GitHub Copilot App canvas.
 5. Open that repo in GitHub Copilot App and open canvas `agentic-world-launcher` with `{ "mode": "pages", "url": "https://<owner>.github.io/<repo>/" }` (or run action `set_target` with the same `url`).
 
 **Note:** `vite.config.ts` and deployment workflows are template-friendly: base path is
-computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
+computed from repository name in CI, so copied repos deploy
 under `/<your-repo-name>/` without hardcoding.
 
 ### Contributing back
@@ -119,27 +109,21 @@ If you'd like to contribute improvements back to the main repo:
 - **GitHub Pages not live?** Verify that GitHub Pages is enabled (source: GitHub Actions)
   and that `.github/workflows/deploy.yml` has completed successfully.
 
-## Run locally without canvas
+## Local development instructions
 
-```bash
-pnpm install
-pnpm run assets
-pnpm run dev
-```
-
-Default dev URL: <http://localhost:5173/>
-
-Build + preview:
-
-```bash
-pnpm run build
-pnpm run preview
-```
+For local canvas mode, local browser run, and local CI-equivalent checks, see:
+[`docs/local-development.md`](docs/local-development.md).
 
 ## Deploy
 
-Pushes to `main` are built and published to GitHub Pages by
+Successful pushes to `main` are built and published to GitHub Pages by
 `.github/workflows/deploy.yml`.
+
+## Release structure
+
+Releases follow Semantic Versioning (major/minor/patch). See
+[`docs/release-process.md`](docs/release-process.md) for the exact bump rules and
+the required version + changelog + tag + release flow.
 
 ## Project layout
 
