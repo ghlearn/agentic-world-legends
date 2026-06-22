@@ -35,7 +35,91 @@ question set intentionally excludes Applied Skills topics.
 | Mute / unmute | `M` |
 | Continue dialog | `Space` / `Enter` / click |
 
-## Run locally
+## Play in GitHub Copilot App (recommended)
+
+This repo includes `.github/extensions/agentic-world-launcher/extension.mjs` so
+you can play inside a Copilot App canvas.
+
+### Prerequisites
+
+- GitHub Copilot App installed and running.
+- Repository opened in a Copilot workspace session.
+
+### Fastest path (play from GitHub Pages)
+
+1. Open this repository in the GitHub Copilot App.
+2. In your Copilot workspace, select **Extensions** → **Reload extensions** (or restart the session).
+3. Open canvas `agentic-world-launcher` with `{ "mode": "pages" }`.
+4. Play! 🎮
+
+### Local dev path (play in canvas against localhost)
+
+**Workflow:**
+
+1. Open this repo in GitHub Copilot App (terminal panel available).
+2. In the Copilot App terminal, run:
+   ```bash
+   pnpm install
+   pnpm run assets
+   pnpm run dev
+   ```
+   This starts the dev server on `http://localhost:5173/` (leave it running).
+3. Restart GitHub Copilot App to reload extensions.
+4. Once restarted, reload extensions: **Extensions** → **Reload extensions**.
+5. Open canvas `agentic-world-launcher` with `{ "mode": "local" }`.
+6. Play! The canvas iframes your local dev server. 🎮
+
+**Keep the dev server running:** The `pnpm run dev` terminal must stay active. Leave it in the background.
+
+Default local dev URL: <http://localhost:5173/>
+
+#### Switching between modes
+
+You can switch between local dev and GitHub Pages at any time without restarting:
+
+- Open the same canvas and run action `set_target` with `{ "mode": "pages" }` or `{ "mode": "local" }`.
+
+#### Custom deployment URLs
+
+If you're running the game on a custom domain (e.g., staging or production):
+
+- Open canvas with `{ "mode": "pages", "url": "https://your-custom-domain.com/" }`
+
+## Copy to your namespace (secondary path)
+
+Use this flow when you want your own copy of the game repo (e.g., `https://github.com/your-username/agentic-world-legends`);
+gameplay is still intended in the GitHub Copilot App canvas.
+
+### Copy as a template
+
+1. Click **Use this template** → **Create a new repository**.
+2. Name it (e.g., `agentic-world-legends`) and choose your namespace.
+3. Enable GitHub Pages (source: GitHub Actions).
+4. Push to `main` to trigger `.github/workflows/deploy.yml`.
+5. Open that repo in GitHub Copilot App and open canvas `agentic-world-launcher` with `{ "mode": "pages", "url": "https://<owner>.github.io/<repo>/" }` (or run action `set_target` with the same `url`).
+
+**Note:** `vite.config.ts` and deployment workflows are template-friendly: base path is
+computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
+under `/<your-repo-name>/` without hardcoding.
+
+### Contributing back
+
+If you'd like to contribute improvements back to the main repo:
+
+1. Fork this repository.
+2. Make changes in your fork.
+3. Open a pull request to the upstream repository.
+
+### Troubleshooting
+
+- **Canvas not loading?** Ensure extensions are reloaded in your Copilot workspace
+  and that you're using a valid `mode` (`"local"` or `"pages"`).
+- **Local dev not working?** Check that `pnpm run dev` is running on <http://localhost:5173/> and
+  refresh the canvas.
+- **GitHub Pages not live?** Verify that GitHub Pages is enabled (source: GitHub Actions)
+  and that `.github/workflows/deploy.yml` has completed successfully.
+
+## Run locally without canvas
 
 ```bash
 pnpm install
@@ -51,30 +135,6 @@ Build + preview:
 pnpm run build
 pnpm run preview
 ```
-
-## Canvas launcher extension (project-scoped)
-
-This repo includes `.github/extensions/agentic-world-launcher/extension.mjs`.
-After extensions are reloaded, open/play from canvas with:
-
-- **Local mode** (recommended while developing): run `pnpm run dev`, then open
-  canvas `agentic-world-launcher` with `{ "mode": "local" }`
-- **Pages mode**: open canvas with `{ "mode": "pages" }`
-
-You can switch targets using action `set_target`.
-
-## Template-repo usage
-
-This project is ready for template copying:
-
-1. Mark the repo as a template in GitHub settings.
-2. Click **Use this template** to create your own repo.
-3. Enable GitHub Pages (source: GitHub Actions).
-4. Push to `main` to trigger `.github/workflows/deploy.yml`.
-
-`vite.config.ts` and deployment workflows are template-friendly: base path is
-computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
-under `/<your-repo-name>/` without hardcoding.
 
 ## Deploy
 
