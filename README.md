@@ -96,7 +96,7 @@ gameplay is still intended in the GitHub Copilot App canvas.
 2. Name it (e.g., `agentic-world-legends`) and choose your namespace.
 3. Enable GitHub Pages (source: GitHub Actions).
 4. Push to `main` to trigger `.github/workflows/deploy.yml`.
-5. Open that repo in GitHub Copilot App and launch `agentic-world-launcher`.
+5. Open that repo in GitHub Copilot App and open canvas `agentic-world-launcher` with `{ "mode": "pages", "url": "https://<owner>.github.io/<repo>/" }` (or run action `set_target` with the same `url`).
 
 **Note:** `vite.config.ts` and deployment workflows are template-friendly: base path is
 computed from repository name in CI via `VITE_BASE_PATH`, so copied repos deploy
