@@ -42,8 +42,7 @@ you can play inside a Copilot App canvas.
 
 ### Prerequisites
 
-- [GitHub Copilot CLI](https://github.com/copilot-cli/copilot-cli) or the GitHub Copilot App
-  installed and running.
+- GitHub Copilot App installed and running.
 - Repository opened in a Copilot workspace session.
 
 ### Fastest path (play from GitHub Pages)
