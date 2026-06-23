@@ -56,7 +56,7 @@ function renderHtml(targetUrl) {
 async function startServer(instanceId) {
   const server = createServer((req, res) => {
     const state = stateByInstance.get(instanceId) ?? {};
-    const targetUrl = safeUrl(state.targetUrl ?? DEFAULT_LOCAL_URL, DEFAULT_LOCAL_URL);
+    const targetUrl = safeUrl(state.targetUrl ?? DEFAULT_PAGES_URL, DEFAULT_PAGES_URL);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.end(renderHtml(targetUrl));
   });
@@ -99,14 +99,14 @@ await joinSession({
             },
           },
           handler: async (ctx) => {
-            const mode = ctx.input?.mode === "pages" ? "pages" : "local";
+            const mode = ctx.input?.mode === "local" ? "local" : "pages";
             const targetUrl = setTargetFromMode(ctx.instanceId, mode, ctx.input?.url);
             return { ok: true, mode, targetUrl };
           },
         },
       ],
       open: async (ctx) => {
-        const mode = ctx.input?.mode === "pages" ? "pages" : "local";
+        const mode = ctx.input?.mode === "local" ? "local" : "pages";
         setTargetFromMode(ctx.instanceId, mode, ctx.input?.url);
         let entry = servers.get(ctx.instanceId);
         if (!entry) {

@@ -5,7 +5,9 @@ development.
 
 ## Local dev in GitHub Copilot App canvas
 
-1. Open this repo in GitHub Copilot App (terminal panel available).
+The launcher is Pages-first by default. For local development, explicitly set local mode.
+
+1. Open this repo in GitHub Copilot App (terminal panel available) and ensure extension `agentic-world-launcher` is available.
 2. In the Copilot App terminal, run:
 
    ```bash
