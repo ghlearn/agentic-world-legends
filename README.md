@@ -51,14 +51,35 @@ you can play inside a Copilot App canvas.
 ### Prerequisites
 
 - GitHub Copilot App installed and running.
-- Repository opened in a Copilot workspace session.
+- Extension `agentic-world-launcher` installed in Copilot App (project, user, or session scope).
+
+### Load the extension without adding this repo as a Copilot project
+
+Use one of these in Copilot App chat:
+
+1. Install from GitHub folder URL (persists when `scope` is `user`):
+   - `Install extension from https://github.com/ghlearn/agentic-world-legends/tree/main/.github/extensions/agentic-world-launcher with scope user`
+2. Install from a shared gist URL:
+   - `Install extension from https://gist.github.com/<owner>/<gist-id> with scope user`
+
+Session-only install option:
+
+- Use `scope session` instead of `scope user` for a temporary install in the current session.
 
 ### Fastest path (play from GitHub Pages)
 
-1. Open this repository in the GitHub Copilot App.
-2. In your Copilot workspace, select **Extensions** → **Reload extensions** (or restart the session).
-3. Open canvas `agentic-world-launcher` with `{ "mode": "pages" }`.
-4. Play! 🎮
+1. Open canvas `agentic-world-launcher`.
+2. Play! 🎮
+
+Pages is the default target (no input required).
+
+To force explicit Pages mode, open with:
+
+- `{ "mode": "pages" }`
+
+If you installed the extension into project scope, reload first:
+
+- **Extensions** → **Reload extensions** (or restart the session).
 
 Default published URL: <https://ghlearn.github.io/agentic-world-legends/>
 
