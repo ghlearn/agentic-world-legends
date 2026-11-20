@@ -10,5 +10,5 @@ final Mainline showdown.
 Built with Phaser 3 + TypeScript + Vite, tested with Vitest, and deployed with
 GitHub Actions + Pages.
 
-👉 Play: https://ghlearn.github.io/agentic-world-legends/  
-👉 Source: https://github.com/ghlearn/agentic-world-legends
+👉 Play: https://ghlearn.github.io/agentic-world-of-legends/
+👉 Source: https://github.com/ghlearn/agentic-world-of-legends

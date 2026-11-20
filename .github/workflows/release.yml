@@ -38,7 +38,7 @@ jobs:
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
       - name: Package build artifact
-        run: tar -czf agentic-world-legends-dist.tar.gz dist
+        run: tar -czf agentic-world-of-legends-dist.tar.gz dist
 
       - name: Prepare release notes from changelog
         shell: bash
@@ -77,4 +77,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body_path: release-notes.md
-          files: agentic-world-legends-dist.tar.gz
+          files: agentic-world-of-legends-dist.tar.gz
