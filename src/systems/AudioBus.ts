@@ -4,6 +4,7 @@
  * Mute state persisted in localStorage.
  */
 const KEY = "agentic-world-of-legends:muted";
+const LEGACY_KEY = "agentic-world-legends:muted";
 
 class AudioBusImpl {
   private ctx: AudioContext | null = null;
@@ -14,7 +15,8 @@ class AudioBusImpl {
 
   constructor() {
     try {
-      this.muted = localStorage.getItem(KEY) === "1";
+      const saved = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
+      this.muted = saved === "1";
     } catch {
       this.muted = false;
     }
