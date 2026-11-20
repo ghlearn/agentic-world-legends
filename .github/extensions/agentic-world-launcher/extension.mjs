@@ -5,7 +5,7 @@ const servers = new Map();
 const stateByInstance = new Map();
 
 const DEFAULT_LOCAL_URL = "http://127.0.0.1:5173/";
-const DEFAULT_PAGES_URL = "https://ghlearn.github.io/agentic-world-legends/";
+const DEFAULT_PAGES_URL = "https://ghlearn.github.io/agentic-world-of-legends/";
 
 function safeUrl(input, fallback) {
   try {

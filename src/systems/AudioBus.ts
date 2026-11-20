@@ -3,7 +3,7 @@
  * Avoids external audio assets while still giving the game a live feel.
  * Mute state persisted in localStorage.
  */
-const KEY = "agentic-world-legends:muted";
+const KEY = "agentic-world-of-legends:muted";
 
 class AudioBusImpl {
   private ctx: AudioContext | null = null;

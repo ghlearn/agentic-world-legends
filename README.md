@@ -8,11 +8,11 @@ A browser-based side-scrolling platformer built with [Phaser 3](https://phaser.i
 
 ## Quick links
 
-> **Upstream repo links** — if you copied this repo, replace `ghlearn/agentic-world-legends` with your `org/repo`.
+> **Upstream repo links** — if you copied this repo, replace `ghlearn/agentic-world-of-legends` with your `org/repo`.
 
-- **GitHub Pages URL (upstream):** <https://ghlearn.github.io/agentic-world-legends/>
+- **GitHub Pages URL (upstream):** <https://ghlearn.github.io/agentic-world-of-legends/>
 - **Pages deploy workflow:** [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-- **Actions runs (upstream):** <https://github.com/ghlearn/agentic-world-legends/actions>
+- **Actions runs (upstream):** <https://github.com/ghlearn/agentic-world-of-legends/actions>
 
 ## Credential progression
 
@@ -58,7 +58,7 @@ you can play inside a Copilot App canvas.
 Use one of these in Copilot App chat:
 
 1. Install from GitHub folder URL (persists when `scope` is `user`):
-   - `Install extension from https://github.com/ghlearn/agentic-world-legends/tree/main/.github/extensions/agentic-world-launcher with scope user`
+   - `Install extension from https://github.com/ghlearn/agentic-world-of-legends/tree/main/.github/extensions/agentic-world-launcher with scope user`
 2. Install from a shared gist URL:
    - `Install extension from https://gist.github.com/<owner>/<gist-id> with scope user`
 
@@ -81,13 +81,13 @@ If you installed the extension into project scope, reload first:
 
 - **Extensions** → **Reload extensions** (or restart the session).
 
-Default published URL: <https://ghlearn.github.io/agentic-world-legends/>
+Default published URL: <https://ghlearn.github.io/agentic-world-of-legends/>
 
 ### Play from GitHub Pages in a browser extension or browser tab
 
 Use the published URL directly:
 
-- <https://ghlearn.github.io/agentic-world-legends/>
+- <https://ghlearn.github.io/agentic-world-of-legends/>
 
 If your browser extension supports opening a URL/webview panel, set it to the
 same GitHub Pages URL above.
@@ -106,13 +106,13 @@ If you're running the game on a custom domain (e.g., staging or production):
 
 ## Copy to your namespace (secondary path)
 
-Use this flow when you want your own copy of the game repo (e.g., `https://github.com/your-username/agentic-world-legends`);
+Use this flow when you want your own copy of the game repo (e.g., `https://github.com/your-username/agentic-world-of-legends`);
 gameplay is still intended in the GitHub Copilot App canvas.
 
 ### Copy as a template
 
 1. Click **Use this template** → **Create a new repository**.
-2. Name it (e.g., `agentic-world-legends`) and choose your namespace.
+2. Name it (e.g., `agentic-world-of-legends`) and choose your namespace.
 3. Enable GitHub Pages (source: GitHub Actions).
 4. Push to `main` to trigger `.github/workflows/deploy.yml`.
 5. Open that repo in GitHub Copilot App and open canvas `agentic-world-launcher` with `{ "mode": "pages", "url": "https://<owner>.github.io/<repo>/" }` (or run action `set_target` with the same `url`).
@@ -164,7 +164,7 @@ the required version + changelog + tag + release flow.
 ## Project layout
 
 ```
-agentic-world-legends/
+agentic-world-of-legends/
 ├── assets-src/raw/
 ├── scripts/optimize-assets.ts
 ├── src/

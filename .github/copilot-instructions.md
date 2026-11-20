@@ -1,4 +1,4 @@
-# Copilot / Agent instructions — agentic-world-legends
+# Copilot / Agent instructions — agentic-world-of-legends
 
 This file is read by GitHub Copilot CLI / coding agents working in this
 repo. Keep it short, specific, and actionable.
