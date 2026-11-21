@@ -28,3 +28,9 @@ export function calculateScore(credentialsCompleted: number, wrongAnswers: numbe
   const speedPoints = Math.max(0, 500 - Math.floor(Math.max(elapsedMs, 0) / 1_000));
   return credentialPoints + accuracyPoints + speedPoints;
 }
+
+export function csvCell(value: string | number): string {
+  const raw = String(value);
+  const neutralized = typeof value === "string" && /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  return `"${neutralized.replaceAll("\"", "\"\"")}"`;
+}

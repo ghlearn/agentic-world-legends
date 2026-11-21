@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateScore, rankScores } from "../src/ranking.js";
+import { calculateScore, csvCell, rankScores } from "../src/ranking.js";
 
 describe("leaderboard ranking", () => {
   it("calculates the same bounded score as the game client", () => {
@@ -25,5 +25,12 @@ describe("leaderboard ranking", () => {
       ["early", 2],
       ["late", 3],
     ]);
+  });
+
+  it("neutralizes formula-leading CSV values before quoting", () => {
+    expect(csvCell("=1+1")).toBe("\"'=1+1\"");
+    expect(csvCell("@SUM(A1:A2)")).toBe("\"'@SUM(A1:A2)\"");
+    expect(csvCell("Player \"One\"")).toBe("\"Player \"\"One\"\"\"");
+    expect(csvCell(42)).toBe("\"42\"");
   });
 });

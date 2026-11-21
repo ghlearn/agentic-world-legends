@@ -6,8 +6,12 @@ import {
   currentRun,
   eventConfigFromLocation,
   pairBooth,
+  queueRunSubmission,
   recordCredential,
+  recordWrongAnswer,
+  startPendingScoreReplay,
   submitRun,
+  subscribeToScoreSubmission,
 } from "../src/systems/EventLeaderboard";
 
 function memoryStorage(): Storage {
@@ -45,7 +49,9 @@ describe("EventLeaderboard", () => {
   it("tracks credentials, wrong answers, and elapsed time across scenes", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "run-1" });
     beginRun({ eventId: "demo", boothId: "A", apiUrl: "https://api.example" }, " Player ", 1_000);
-    recordCredential(2, 2_500);
+    recordWrongAnswer(2_000);
+    recordWrongAnswer(2_200);
+    recordCredential(2_500);
     expect(currentRun(3_000)).toMatchObject({
       runId: "run-1",
       nickname: "Player",
@@ -82,6 +88,38 @@ describe("EventLeaderboard", () => {
     expect(fetchMock.mock.calls[1][1]?.headers).toMatchObject({
       authorization: "Bearer booth-token",
     });
+    expect(localStorage.length).toBe(1);
+  });
+
+  it("replays a queued score independently and notifies active listeners", async () => {
+    const config = { eventId: "demo", boothId: "A", apiUrl: "https://api.example" };
+    localStorage.setItem(
+      "agentic-world:booth-token:https://api.example:demo:A",
+      "booth-token",
+    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ entries: [{ runId: "run-1", rank: 1 }] }), { status: 200 }),
+    ));
+    vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
+      setInterval: vi.fn(),
+    });
+    const updates: string[] = [];
+    subscribeToScoreSubmission("run-1", (update) => updates.push(update.status));
+
+    queueRunSubmission(config, {
+      runId: "run-1",
+      nickname: "Player",
+      eventId: "demo",
+      boothId: "A",
+      credentialsCompleted: 6,
+      wrongAnswers: 0,
+      elapsedMs: 10_000,
+    });
+    startPendingScoreReplay();
+    await vi.waitFor(() => expect(updates).toContain("submitted"));
+
+    expect(updates).toEqual(["pending", "submitted"]);
     expect(localStorage.length).toBe(1);
   });
 });

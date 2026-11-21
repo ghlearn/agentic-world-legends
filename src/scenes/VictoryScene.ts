@@ -4,9 +4,9 @@ import { VICTORY_NARRATION } from "../data/story";
 import {
   currentRun,
   eventConfigFromLocation,
-  submitRun,
   calculateScore,
-  LeaderboardRequestError,
+  queueRunSubmission,
+  subscribeToScoreSubmission,
 } from "../systems/EventLeaderboard";
 
 /**
@@ -70,30 +70,28 @@ export class VictoryScene extends Phaser.Scene {
       wordWrap: { width: w - 260 },
     }).setOrigin(0.5);
     if (event && run) {
-      const attemptSubmission = () => {
-        leaderboardStatus.setText(`Submitting ${run.nickname}'s score...`);
-        void submitRun(event, run).then((entries) => {
+      leaderboardStatus.setText(`Submitting ${run.nickname}'s score...`);
+      const unsubscribe = subscribeToScoreSubmission(run.runId, (update) => {
+        if (update.status === "submitted") {
           const score = calculateScore(run);
-          const rank = entries.find((entry) => entry.runId === run.runId)?.rank;
+          const rank = update.entries.find((entry) => entry.runId === run.runId)?.rank;
           leaderboardStatus.setText(
             rank ? `Event score: ${score.toLocaleString()} • Rank ${rank}` : `Event score: ${score.toLocaleString()}`,
           );
-        }).catch((error: unknown) => {
-          if (error instanceof LeaderboardRequestError && error.status < 500) {
-            leaderboardStatus.setText(
-              error.status === 409
-                ? "This event is closed. The final leaderboard is frozen."
-                : "Score rejected. Ask event staff to check this booth.",
-            );
-            leaderboardStatus.setColor("#ffb86b");
-            return;
-          }
+        } else if (update.status === "rejected") {
+          leaderboardStatus.setText(
+            update.error.status === 409
+              ? "This event is closed. The final leaderboard is frozen."
+              : "Score rejected. Ask event staff to check this booth.",
+          );
+          leaderboardStatus.setColor("#ffb86b");
+        } else {
           leaderboardStatus.setText("Score pending - retrying when the booth reconnects.");
           leaderboardStatus.setColor("#ffb86b");
-          this.time.delayedCall(5_000, attemptSubmission);
-        });
-      };
-      attemptSubmission();
+        }
+      });
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, unsubscribe);
+      queueRunSubmission(event, run);
     } else if (event) {
       leaderboardStatus.setText("Event mode is ready. Start a new run to submit a score.");
     }

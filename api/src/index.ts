@@ -1,7 +1,7 @@
 import { app, type HttpRequest, type HttpResponseInit, type InvocationContext } from "@azure/functions";
 import { TableClient, odata, type TableEntity } from "@azure/data-tables";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
-import { calculateScore, rankScores, type RankedScore } from "./ranking.js";
+import { calculateScore, csvCell, rankScores, type RankedScore } from "./ranking.js";
 
 interface EventEntity extends TableEntity {
   etag?: string;
@@ -188,10 +188,6 @@ app.http("submitScore", {
   authLevel: "anonymous",
   handler: async (request) => {
     const eventId = request.params.eventId;
-    const event = await readEvent(eventId);
-    if (!event) return json(404, { error: "Event not found" });
-    if (event.status !== "open") return json(409, { error: "Event is closed" });
-
     const body = await request.json() as Partial<RankedScore>;
     const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     if (!body.boothId || !token) return json(401, { error: "Booth authorization is required" });
@@ -228,17 +224,23 @@ app.http("submitScore", {
       score: calculateScore(credentialsCompleted, wrongAnswers, elapsedMs),
       acceptedAt: new Date().toISOString(),
     };
-    try {
-      await leaderboardTable.submitTransaction([
-        ["update", event, "Merge", { etag: event.etag }],
-        ["create", entity],
-      ]);
-    } catch (error) {
-      const statusCode = (error as { statusCode?: number }).statusCode;
-      if (statusCode === 412) return json(409, { error: "Event closed while score was submitting" });
-      if (statusCode !== 409) throw error;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const event = await readEvent(eventId);
+      if (!event) return json(404, { error: "Event not found" });
+      if (event.status !== "open") return json(409, { error: "Event is closed" });
+      try {
+        await leaderboardTable.submitTransaction([
+          ["update", event, "Merge", { etag: event.etag }],
+          ["create", entity],
+        ]);
+        return json(200, { entries: await leaderboard(eventId) });
+      } catch (error) {
+        const statusCode = (error as { statusCode?: number }).statusCode;
+        if (statusCode === 409) return json(200, { entries: await leaderboard(eventId) });
+        if (statusCode !== 412) throw error;
+      }
     }
-    return json(200, { entries: await leaderboard(eventId) });
+    return json(503, { error: "Score submission was busy; retry" });
   },
 });
 
@@ -262,7 +264,7 @@ app.http("closeEvent", {
     if (!event) return json(404, { error: "Event not found" });
     event.status = "closed";
     event.closedAt = new Date().toISOString();
-    await leaderboardTable.updateEntity(event, "Merge", { etag: event.etag });
+    await leaderboardTable.updateEntity(event, "Merge", { etag: "*" });
     return json(200, { eventId: request.params.eventId, status: "closed" });
   },
 });
@@ -274,7 +276,6 @@ app.http("exportScores", {
   handler: async (request: HttpRequest, _context: InvocationContext) => {
     if (!adminAuthorized(request)) return json(401, { error: "Unauthorized" });
     const entries = await leaderboard(request.params.eventId);
-    const escape = (value: string | number) => `"${String(value).replaceAll("\"", "\"\"")}"`;
     const rows = [
       ["rank", "nickname", "score", "credentialsCompleted", "wrongAnswers", "elapsedMs", "boothId", "runId"],
       ...entries.map((entry) => [
@@ -284,7 +285,7 @@ app.http("exportScores", {
     ];
     return {
       status: 200,
-      body: rows.map((row) => row.map(escape).join(",")).join("\n"),
+      body: rows.map((row) => row.map(csvCell).join(",")).join("\n"),
       headers: { ...corsHeaders(), "content-type": "text/csv; charset=utf-8" },
     };
   },

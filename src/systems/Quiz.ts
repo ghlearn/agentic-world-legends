@@ -15,7 +15,7 @@ export class Quiz {
     this.scene = scene;
   }
 
-  show(question: QuizQuestion): Promise<{ wrongCount: number }> {
+  show(question: QuizQuestion, onWrongAnswer?: () => void): Promise<{ wrongCount: number }> {
     const q = shuffleQuestion(question);
     const touch = isTouchDevice();
     // Sizing — larger fonts and taller option rows on touch devices so
@@ -118,6 +118,7 @@ export class Quiz {
           this.scene.tweens.add({ targets: continueLabel, alpha: 0.4, duration: 700, yoyo: true, repeat: -1 });
         } else {
           wrongCount += 1;
+          onWrongAnswer?.();
           optionBgs[i].setFillStyle(0x6e1c2e);
           feedback.setText(q.failureMessage + "\nTry again.").setColor("#ff6b81");
           // Re-enable after a beat

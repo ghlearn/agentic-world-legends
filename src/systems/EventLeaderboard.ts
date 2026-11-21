@@ -23,6 +23,16 @@ interface StoredRun extends RunSummary {
   startedAt: number;
 }
 
+interface PendingScore {
+  config: EventConfig;
+  summary: RunSummary;
+}
+
+export type ScoreSubmissionUpdate =
+  | { status: "submitted"; entries: LeaderboardEntry[] }
+  | { status: "rejected"; error: LeaderboardRequestError }
+  | { status: "pending" };
+
 export class LeaderboardRequestError extends Error {
   constructor(
     message: string,
@@ -36,6 +46,9 @@ const RUN_KEY = "agentic-world:event-run";
 const LEVEL_COUNT = 6;
 const TOKEN_PREFIX = "agentic-world:booth-token:";
 const PENDING_PREFIX = "agentic-world:pending-score:";
+const listeners = new Map<string, Set<(update: ScoreSubmissionUpdate) => void>>();
+const submissionsInFlight = new Set<string>();
+let replayStarted = false;
 
 export function eventConfigFromLocation(
   location: Pick<Location, "search"> = window.location,
@@ -75,11 +88,18 @@ export function beginRun(config: EventConfig | undefined, nickname: string, now 
   sessionStorage.setItem(RUN_KEY, JSON.stringify(run));
 }
 
-export function recordCredential(wrongAnswers: number, now = Date.now()): void {
+export function recordWrongAnswer(now = Date.now()): void {
+  const run = readStoredRun();
+  if (!run) return;
+  run.wrongAnswers += 1;
+  run.elapsedMs = Math.max(0, now - run.startedAt);
+  sessionStorage.setItem(RUN_KEY, JSON.stringify(run));
+}
+
+export function recordCredential(now = Date.now()): void {
   const run = readStoredRun();
   if (!run) return;
   run.credentialsCompleted = Math.min(LEVEL_COUNT, run.credentialsCompleted + 1);
-  run.wrongAnswers += Math.max(0, wrongAnswers);
   run.elapsedMs = Math.max(0, now - run.startedAt);
   sessionStorage.setItem(RUN_KEY, JSON.stringify(run));
 }
@@ -101,8 +121,6 @@ export function currentRun(now = Date.now()): RunSummary | undefined {
 export async function submitRun(config: EventConfig, summary: RunSummary): Promise<LeaderboardEntry[]> {
   const token = boothToken(config);
   if (!token) throw new Error("Booth is not paired");
-  const pendingKey = `${PENDING_PREFIX}${config.apiUrl}:${summary.runId}`;
-  localStorage.setItem(pendingKey, JSON.stringify(summary));
   const response = await fetch(`${config.apiUrl}/events/${encodeURIComponent(config.eventId)}/scores`, {
     method: "POST",
     headers: {
@@ -115,8 +133,40 @@ export async function submitRun(config: EventConfig, summary: RunSummary): Promi
     throw new LeaderboardRequestError(`Leaderboard submission failed (${response.status})`, response.status);
   }
   const payload = (await response.json()) as { entries?: LeaderboardEntry[] };
-  localStorage.removeItem(pendingKey);
   return payload.entries ?? [];
+}
+
+export function queueRunSubmission(config: EventConfig, summary: RunSummary): void {
+  const key = pendingKey(config, summary.runId);
+  localStorage.setItem(key, JSON.stringify({ config, summary } satisfies PendingScore));
+  void replayPendingScore(key);
+}
+
+export function subscribeToScoreSubmission(
+  runId: string,
+  listener: (update: ScoreSubmissionUpdate) => void,
+): () => void {
+  const runListeners = listeners.get(runId) ?? new Set();
+  runListeners.add(listener);
+  listeners.set(runId, runListeners);
+  return () => {
+    runListeners.delete(listener);
+    if (runListeners.size === 0) listeners.delete(runId);
+  };
+}
+
+export function startPendingScoreReplay(): void {
+  if (replayStarted) return;
+  replayStarted = true;
+  const replay = () => {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(PENDING_PREFIX)) void replayPendingScore(key);
+    }
+  };
+  replay();
+  window.addEventListener("online", replay);
+  window.setInterval(replay, 5_000);
 }
 
 export async function pairBooth(config: EventConfig, code: string): Promise<void> {
@@ -151,6 +201,54 @@ function boothToken(config: EventConfig): string | null {
 
 function tokenKey(config: EventConfig): string {
   return `${TOKEN_PREFIX}${config.apiUrl}:${config.eventId}:${config.boothId}`;
+}
+
+function pendingKey(config: EventConfig, runId: string): string {
+  return `${PENDING_PREFIX}${config.apiUrl}:${runId}`;
+}
+
+async function replayPendingScore(key: string): Promise<void> {
+  if (submissionsInFlight.has(key)) return;
+  const pending = readPendingScore(key);
+  if (!pending) {
+    localStorage.removeItem(key);
+    return;
+  }
+  submissionsInFlight.add(key);
+  notify(pending.summary.runId, { status: "pending" });
+  try {
+    const entries = await submitRun(pending.config, pending.summary);
+    localStorage.removeItem(key);
+    notify(pending.summary.runId, { status: "submitted", entries });
+  } catch (error) {
+    if (error instanceof LeaderboardRequestError && error.status < 500) {
+      localStorage.removeItem(key);
+      notify(pending.summary.runId, { status: "rejected", error });
+    }
+  } finally {
+    submissionsInFlight.delete(key);
+  }
+}
+
+function readPendingScore(key: string): PendingScore | undefined {
+  const raw = localStorage.getItem(key);
+  if (!raw) return undefined;
+  try {
+    const pending = JSON.parse(raw) as PendingScore;
+    if (
+      typeof pending.config?.apiUrl !== "string" ||
+      typeof pending.config?.eventId !== "string" ||
+      typeof pending.config?.boothId !== "string" ||
+      typeof pending.summary?.runId !== "string"
+    ) return undefined;
+    return pending;
+  } catch {
+    return undefined;
+  }
+}
+
+function notify(runId: string, update: ScoreSubmissionUpdate): void {
+  listeners.get(runId)?.forEach((listener) => listener(update));
 }
 
 function readStoredRun(): StoredRun | undefined {

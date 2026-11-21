@@ -13,6 +13,7 @@ import { LevelGH600AgenticAIScene } from "./scenes/LevelGH600AgenticAIScene";
 import { BossMainlineScene } from "./scenes/BossMainlineScene";
 import { VictoryScene } from "./scenes/VictoryScene";
 import { GameOverScene } from "./scenes/GameOverScene";
+import { startPendingScoreReplay } from "./systems/EventLeaderboard";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -49,4 +50,5 @@ const config: Phaser.Types.Core.GameConfig = {
   ],
 };
 
+startPendingScoreReplay();
 new Phaser.Game(config);
