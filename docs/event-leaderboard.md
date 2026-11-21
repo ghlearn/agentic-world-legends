@@ -15,7 +15,7 @@ Create an Azure Function App using Node.js 22 and configure:
 
 Build with `pnpm build`. Deploy the contents of `api/` using the Azure
 Functions deployment method used by your organization. The app creates its
-two Table Storage tables when the first event is created.
+Table Storage table when the first event is created.
 
 The GitHub Pages build also includes `organizer.html`. Open it with the public
 API URL, for example `organizer.html?api=https%3A%2F%2Fexample.azurewebsites.net%2Fapi`,

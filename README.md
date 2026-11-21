@@ -138,8 +138,6 @@ If you'd like to contribute improvements back to the main repo:
 - **GitHub Pages not live?** Verify that GitHub Pages is enabled (source: GitHub Actions)
   and that `.github/workflows/deploy.yml` has completed successfully.
 
-## Local development instructions
-
 ## Event leaderboard mode
 
 The game remains deployable on GitHub Pages, with optional shared event
@@ -161,6 +159,8 @@ in [`docs/event-leaderboard.md`](docs/event-leaderboard.md). No storage keys
 or organizer secrets are shipped to browsers. Prize events should use
 staff-supervised booth browsers because browser-reported gameplay cannot be
 made fully cheat-proof.
+
+## Local development instructions
 
 For local canvas mode, local browser run, and local CI-equivalent checks, see:
 [`docs/local-development.md`](docs/local-development.md).

@@ -22,7 +22,6 @@ const connection = process.env.AzureWebJobsStorage;
 if (!connection) throw new Error("AzureWebJobsStorage is required");
 
 const leaderboardTable = TableClient.fromConnectionString(connection, "Leaderboard");
-const booths = TableClient.fromConnectionString(connection, "LeaderboardBooths");
 
 function hash(value: string): string {
   return createHash("sha256").update(value).digest("hex");
@@ -59,13 +58,11 @@ function validId(value: string): boolean {
 }
 
 async function ensureTables(): Promise<void> {
-  await Promise.all([leaderboardTable, booths].map(async (client) => {
-    try {
-      await client.createTable();
-    } catch (error) {
-      if ((error as { statusCode?: number }).statusCode !== 409) throw error;
-    }
-  }));
+  try {
+    await leaderboardTable.createTable();
+  } catch (error) {
+    if ((error as { statusCode?: number }).statusCode !== 409) throw error;
+  }
 }
 
 async function readEvent(eventId: string): Promise<EventEntity | undefined> {
@@ -113,30 +110,40 @@ app.http("createEvent", {
     const body = await request.json() as { eventId?: string; booths?: string[] };
     const eventId = body.eventId?.trim();
     const boothIds = [...new Set(body.booths?.map((value) => value.trim()).filter(Boolean) ?? [])];
-    if (!eventId || !validId(eventId) || boothIds.length === 0 || boothIds.some((value) => !validId(value))) {
-      return json(400, { error: "eventId and booths must use 1-64 letters, numbers, underscores, or hyphens" });
+    if (
+      !eventId || !validId(eventId) ||
+      boothIds.length === 0 || boothIds.length > 99 ||
+      boothIds.some((value) => !validId(value))
+    ) {
+      return json(400, {
+        error: "eventId and 1-99 booths must use 1-64 letters, numbers, underscores, or hyphens",
+      });
     }
 
     await ensureTables();
     if (await readEvent(eventId)) return json(409, { error: "Event already exists" });
     const createdAt = new Date().toISOString();
-    await leaderboardTable.createEntity<EventEntity>({
+    const event: EventEntity = {
       partitionKey: `event:${eventId}`,
       rowKey: "event",
       status: "open",
       createdAt,
-    });
+    };
 
     const pairingCodes: Record<string, string> = {};
-    for (const boothId of boothIds) {
+    const boothEntities = boothIds.map((boothId): BoothEntity => {
       const code = randomBytes(4).toString("hex").toUpperCase();
       pairingCodes[boothId] = code;
-      await booths.createEntity<BoothEntity>({
+      return {
         partitionKey: `event:${eventId}`,
         rowKey: `booth:${boothId}`,
         pairingCodeHash: hash(code),
-      });
-    }
+      };
+    });
+    await leaderboardTable.submitTransaction([
+      ["create", event],
+      ...boothEntities.map((booth): ["create", BoothEntity] => ["create", booth]),
+    ]);
     return json(201, { eventId, status: "open", pairingCodes });
   },
 });
@@ -151,7 +158,7 @@ app.http("pairBooth", {
     const body = await request.json() as { code?: string };
     if ((await readEvent(eventId))?.status !== "open") return json(409, { error: "Event is not open" });
     try {
-      const booth = await booths.getEntity<BoothEntity>(`event:${eventId}`, `booth:${boothId}`);
+      const booth = await leaderboardTable.getEntity<BoothEntity>(`event:${eventId}`, `booth:${boothId}`);
       if (!sameHash(booth.pairingCodeHash, hash(body.code?.trim().toUpperCase() ?? ""))) {
         return json(401, { error: "Invalid pairing code" });
       }
@@ -160,7 +167,7 @@ app.http("pairBooth", {
       booth.pairedAt = new Date().toISOString();
       booth.pairingCodeHash = hash(randomBytes(16).toString("hex"));
       try {
-        await booths.updateEntity(booth, "Replace", { etag: booth.etag });
+        await leaderboardTable.updateEntity(booth, "Replace", { etag: booth.etag });
       } catch (error) {
         if ((error as { statusCode?: number }).statusCode === 412) {
           return json(409, { error: "Pairing code was already used" });
@@ -189,7 +196,7 @@ app.http("submitScore", {
     const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     if (!body.boothId || !token) return json(401, { error: "Booth authorization is required" });
     try {
-      const booth = await booths.getEntity<BoothEntity>(`event:${eventId}`, `booth:${body.boothId}`);
+      const booth = await leaderboardTable.getEntity<BoothEntity>(`event:${eventId}`, `booth:${body.boothId}`);
       if (!sameHash(booth.tokenHash, hash(token))) return json(401, { error: "Invalid booth token" });
     } catch (error) {
       if ((error as { statusCode?: number }).statusCode === 404) return json(401, { error: "Invalid booth token" });
