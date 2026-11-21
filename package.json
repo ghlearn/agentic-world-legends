@@ -1,15 +1,17 @@
 {
   "name": "agentic-world-of-legends",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Traverse six GitHub credential realms and restore the sacred Mainline in Agentic World of Legends.",
   "type": "module",
   "scripts": {
     "assets": "tsx scripts/optimize-assets.ts",
     "dev": "vite",
-    "build": "pnpm run assets && tsc --noEmit && vite build",
+    "build": "pnpm run assets && tsc --noEmit && vite build && pnpm run api:build",
+    "api:build": "pnpm --filter agentic-world-leaderboard-api build",
+    "api:test": "pnpm --filter agentic-world-leaderboard-api test",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run tests && pnpm run api:test",
     "test:watch": "vitest"
   },
   "keywords": [

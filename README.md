@@ -138,6 +138,28 @@ If you'd like to contribute improvements back to the main repo:
 - **GitHub Pages not live?** Verify that GitHub Pages is enabled (source: GitHub Actions)
   and that `.github/workflows/deploy.yml` has completed successfully.
 
+## Event leaderboard mode
+
+The game remains deployable on GitHub Pages, with optional shared event
+scoring. Build it with `VITE_LEADERBOARD_API_URL` set to the HTTPS base URL of
+the leaderboard service, or pass the public API URL as `api` in each booth
+link, then give each booth a URL such as:
+
+`https://ghlearn.github.io/agentic-world-of-legends/?event=demo&booth=A&api=https%3A%2F%2Fapi.example.com`
+
+Players enter a nickname once per run. The game submits a unique run ID when
+the Mainline is restored; retries keep the run's timer and mistake count in
+session storage. Staff pair each booth once using a single-use code; the
+resulting browser credential remains in local storage between players. A
+public display can use the generated `leaderboard.html` page with
+`?event=demo&booth=display`; it refreshes every five seconds.
+
+The deployable Azure Functions service and organizer endpoints are documented
+in [`docs/event-leaderboard.md`](docs/event-leaderboard.md). No storage keys
+or organizer secrets are shipped to browsers. Prize events should use
+staff-supervised booth browsers because browser-reported gameplay cannot be
+made fully cheat-proof.
+
 ## Local development instructions
 
 For local canvas mode, local browser run, and local CI-equivalent checks, see:

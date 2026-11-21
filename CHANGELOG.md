@@ -7,6 +7,23 @@ This project follows [Semantic Versioning](https://semver.org/) and
 Versions in the `0.x` range are **beta** — APIs, levels, and balance may
 change at any time. The first GA release will be `1.0.0`.
 
+## [0.3.0] - Beta
+
+### Added
+- Added optional event mode with booth/event URL configuration, nickname
+  capture, cross-scene run tracking, score submission, and retry-safe timing.
+- Added a public `leaderboard.html` display that refreshes shared event scores
+  every five seconds.
+- Added a deployable Azure Functions/Table Storage API with event creation,
+  single-use booth pairing, authenticated score submission, event closure,
+  and CSV export.
+- Added an organizer page for event creation, pairing-code distribution,
+  leaderboard freeze, and CSV download.
+
+### Changed
+- Victory now reports the event score and rank when a leaderboard API is
+  configured; the existing QR/prize flow remains available.
+
 ## [0.2.0] - Beta
 
 ### Added

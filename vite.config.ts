@@ -8,7 +8,17 @@ const base = process.env.VITE_BASE_PATH ?? (repoName ? `/${repoName}/` : "/");
 export default defineConfig({
   base,
   server: { port: 5173, host: true },
-  build: { target: 'es2020', sourcemap: true },
+  build: {
+    target: 'es2020',
+    sourcemap: true,
+    rollupOptions: {
+      input: {
+        game: new URL('./index.html', import.meta.url).pathname,
+        leaderboard: new URL('./leaderboard.html', import.meta.url).pathname,
+        organizer: new URL('./organizer.html', import.meta.url).pathname,
+      },
+    },
+  },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agentic World of Legends - Event Organizer</title>
+  </head>
+  <body>
+    <main>
+      <h1>Event Organizer</h1>
+      <p>Admin credentials stay in this browser tab and are never added to booth URLs.</p>
+      <label>API URL <input id="api-url" type="url" placeholder="https://example.azurewebsites.net/api" /></label>
+      <label>Admin key <input id="admin-key" type="password" autocomplete="off" /></label>
+      <label>Event ID <input id="event-id" value="demo" /></label>
+      <label>Booths <input id="booths" value="A, B, C" /></label>
+      <div class="actions">
+        <button id="create">Create event</button>
+        <button id="close">Close event</button>
+        <button id="export">Export CSV</button>
+      </div>
+      <p id="status" role="status"></p>
+      <pre id="result" hidden></pre>
+    </main>
+    <script type="module" src="/src/organizer.ts"></script>
+  </body>
+</html>

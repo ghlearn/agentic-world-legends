@@ -1,6 +1,13 @@
 import Phaser from "phaser";
 import { GAME_HEIGHT, GAME_WIDTH } from "../config";
 import { VICTORY_NARRATION } from "../data/story";
+import {
+  currentRun,
+  eventConfigFromLocation,
+  calculateScore,
+  queueRunSubmission,
+  subscribeToScoreSubmission,
+} from "../systems/EventLeaderboard";
 
 /**
  * Victory screen. Shows the closing narration on the left and a
@@ -52,6 +59,42 @@ export class VictoryScene extends Phaser.Scene {
     this.add.text(qrX, qrY + qrSize / 2 + 28, "Keep learning • Keep shipping", {
       fontFamily: "system-ui, sans-serif", fontSize: "14px", color: "#3a0d24",
     }).setOrigin(0.5);
+
+    const event = eventConfigFromLocation();
+    const run = currentRun();
+    const leaderboardStatus = this.add.text(w / 2, h - 128, "", {
+      fontFamily: "system-ui, sans-serif",
+      fontSize: "16px",
+      color: "#c9d1d9",
+      align: "center",
+      wordWrap: { width: w - 260 },
+    }).setOrigin(0.5);
+    if (event && run) {
+      leaderboardStatus.setText(`Submitting ${run.nickname}'s score...`);
+      const unsubscribe = subscribeToScoreSubmission(run.runId, (update) => {
+        if (update.status === "submitted") {
+          const score = calculateScore(run);
+          const rank = update.entries.find((entry) => entry.runId === run.runId)?.rank;
+          leaderboardStatus.setText(
+            rank ? `Event score: ${score.toLocaleString()} • Rank ${rank}` : `Event score: ${score.toLocaleString()}`,
+          );
+        } else if (update.status === "rejected") {
+          leaderboardStatus.setText(
+            update.error.status === 409
+              ? "This event is closed. The final leaderboard is frozen."
+              : "Score rejected. Ask event staff to check this booth.",
+          );
+          leaderboardStatus.setColor("#ffb86b");
+        } else {
+          leaderboardStatus.setText("Score pending - retrying when the booth reconnects.");
+          leaderboardStatus.setColor("#ffb86b");
+        }
+      });
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, unsubscribe);
+      queueRunSubmission(event, run);
+    } else if (event) {
+      leaderboardStatus.setText("Event mode is ready. Start a new run to submit a score.");
+    }
 
     // Tappable "Play again" button (also a visual cue for desktop).
     const btn = this.add.rectangle(w / 2, h - 70, 280, 56, 0xf78166)
