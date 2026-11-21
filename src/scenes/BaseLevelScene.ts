@@ -10,6 +10,7 @@ import { showRewardModal } from "../systems/RewardModal";
 import { QUIZZES } from "../data/quizzes";
 import { GAME_HEIGHT, GAME_WIDTH } from "../config";
 import { TouchControls } from "../systems/TouchControls";
+import { recordCredential } from "../systems/EventLeaderboard";
 
 export interface PlatformDef {
   x: number;
@@ -350,6 +351,7 @@ export abstract class BaseLevelScene extends Phaser.Scene {
       const quiz = new Quiz(this);
       const { wrongCount } = await quiz.show(q);
       this.wrongAnswers += wrongCount;
+      recordCredential(wrongCount);
     }
     this.advanceLevel();
   }

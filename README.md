@@ -140,6 +140,23 @@ If you'd like to contribute improvements back to the main repo:
 
 ## Local development instructions
 
+## Event leaderboard mode
+
+The game remains deployable on GitHub Pages, with optional shared event
+scoring. Build it with `VITE_LEADERBOARD_API_URL` set to the HTTPS base URL of
+the leaderboard service, or pass the public API URL as `api` in each booth
+link, then give each booth a URL such as:
+
+`https://ghlearn.github.io/agentic-world-of-legends/?event=demo&booth=A&api=https%3A%2F%2Fapi.example.com`
+
+Players enter a nickname once per run. The game submits a unique run ID when
+the Mainline is restored; retries keep the run's timer and mistake count in
+session storage. A public display can use the generated `leaderboard.html`
+page with `?event=demo&booth=display`; it refreshes every five seconds.
+
+The API contract is documented in [`docs/event-leaderboard.md`](docs/event-leaderboard.md).
+No storage keys or booth secrets are shipped to browsers.
+
 For local canvas mode, local browser run, and local CI-equivalent checks, see:
 [`docs/local-development.md`](docs/local-development.md).
 

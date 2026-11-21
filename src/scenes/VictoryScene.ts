@@ -1,6 +1,12 @@
 import Phaser from "phaser";
 import { GAME_HEIGHT, GAME_WIDTH } from "../config";
 import { VICTORY_NARRATION } from "../data/story";
+import {
+  currentRun,
+  eventConfigFromLocation,
+  submitRun,
+  calculateScore,
+} from "../systems/EventLeaderboard";
 
 /**
  * Victory screen. Shows the closing narration on the left and a
@@ -52,6 +58,33 @@ export class VictoryScene extends Phaser.Scene {
     this.add.text(qrX, qrY + qrSize / 2 + 28, "Keep learning • Keep shipping", {
       fontFamily: "system-ui, sans-serif", fontSize: "14px", color: "#3a0d24",
     }).setOrigin(0.5);
+
+    const event = eventConfigFromLocation();
+    const run = currentRun();
+    const leaderboardStatus = this.add.text(w / 2, h - 128, "", {
+      fontFamily: "system-ui, sans-serif",
+      fontSize: "16px",
+      color: "#c9d1d9",
+      align: "center",
+      wordWrap: { width: w - 260 },
+    }).setOrigin(0.5);
+    if (event && run) {
+      leaderboardStatus.setText(`Submitting ${run.nickname}'s score...`);
+      void submitRun(event, run)
+        .then((entries) => {
+          const score = calculateScore(run);
+          const rank = entries.find((entry) => entry.runId === run.runId)?.rank;
+          leaderboardStatus.setText(
+            rank ? `Event score: ${score.toLocaleString()} • Rank ${rank}` : `Event score: ${score.toLocaleString()}`,
+          );
+        })
+        .catch(() => {
+          leaderboardStatus.setText("Score pending - check the booth connection and try again.");
+          leaderboardStatus.setColor("#ffb86b");
+        });
+    } else if (event) {
+      leaderboardStatus.setText("Event mode is ready. Start a new run to submit a score.");
+    }
 
     // Tappable "Play again" button (also a visual cue for desktop).
     const btn = this.add.rectangle(w / 2, h - 70, 280, 56, 0xf78166)
