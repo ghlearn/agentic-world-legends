@@ -3,7 +3,12 @@ import { GAME_HEIGHT, GAME_WIDTH } from "../config";
 import { TAGLINE } from "../data/story";
 import { addFullscreenButton } from "../systems/FullscreenButton";
 import { isTouchDevice } from "../systems/TouchControls";
-import { beginRun, eventConfigFromLocation } from "../systems/EventLeaderboard";
+import {
+  beginRun,
+  boothIsPaired,
+  eventConfigFromLocation,
+  pairBooth,
+} from "../systems/EventLeaderboard";
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -82,9 +87,22 @@ export class TitleScene extends Phaser.Scene {
       }).setOrigin(1, 0.5);
     }
 
-    const start = () => {
+    let starting = false;
+    const start = async () => {
+      if (starting) return;
+      starting = true;
       const event = eventConfigFromLocation();
       if (event) {
+        if (!boothIsPaired(event)) {
+          const code = window.prompt(`Enter the pairing code for booth ${event.boothId}:`, "") ?? "";
+          try {
+            await pairBooth(event, code);
+          } catch {
+            window.alert("This booth could not be paired. Check the code and connection, then try again.");
+            starting = false;
+            return;
+          }
+        }
         const nickname = window.prompt("Enter your event leaderboard name:", "") ?? "";
         beginRun(event, nickname);
       } else {
@@ -92,8 +110,8 @@ export class TitleScene extends Phaser.Scene {
       }
       this.scene.start("Intro");
     };
-    this.input.keyboard?.once("keydown-SPACE", start);
-    this.input.keyboard?.once("keydown-ENTER", start);
-    prompt.once("pointerdown", start);
+    this.input.keyboard?.once("keydown-SPACE", () => void start());
+    this.input.keyboard?.once("keydown-ENTER", () => void start());
+    prompt.once("pointerdown", () => void start());
   }
 }

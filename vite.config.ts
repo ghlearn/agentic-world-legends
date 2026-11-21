@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         game: new URL('./index.html', import.meta.url).pathname,
         leaderboard: new URL('./leaderboard.html', import.meta.url).pathname,
+        organizer: new URL('./organizer.html', import.meta.url).pathname,
       },
     },
   },

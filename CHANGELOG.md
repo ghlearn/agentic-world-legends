@@ -14,8 +14,11 @@ change at any time. The first GA release will be `1.0.0`.
   capture, cross-scene run tracking, score submission, and retry-safe timing.
 - Added a public `leaderboard.html` display that refreshes shared event scores
   every five seconds.
-- Added the Azure Functions/Table Storage API contract in
-  `docs/event-leaderboard.md`.
+- Added a deployable Azure Functions/Table Storage API with event creation,
+  single-use booth pairing, authenticated score submission, event closure,
+  and CSV export.
+- Added an organizer page for event creation, pairing-code distribution,
+  leaderboard freeze, and CSV download.
 
 ### Changed
 - Victory now reports the event score and rank when a leaderboard API is

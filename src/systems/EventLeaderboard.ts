@@ -23,8 +23,19 @@ interface StoredRun extends RunSummary {
   startedAt: number;
 }
 
+export class LeaderboardRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
+
 const RUN_KEY = "agentic-world:event-run";
 const LEVEL_COUNT = 6;
+const TOKEN_PREFIX = "agentic-world:booth-token:";
+const PENDING_PREFIX = "agentic-world:pending-score:";
 
 export function eventConfigFromLocation(
   location: Pick<Location, "search"> = window.location,
@@ -88,14 +99,43 @@ export function currentRun(now = Date.now()): RunSummary | undefined {
 }
 
 export async function submitRun(config: EventConfig, summary: RunSummary): Promise<LeaderboardEntry[]> {
+  const token = boothToken(config);
+  if (!token) throw new Error("Booth is not paired");
+  const pendingKey = `${PENDING_PREFIX}${config.apiUrl}:${summary.runId}`;
+  localStorage.setItem(pendingKey, JSON.stringify(summary));
   const response = await fetch(`${config.apiUrl}/events/${encodeURIComponent(config.eventId)}/scores`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ ...summary, score: calculateScore(summary) }),
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(summary),
   });
-  if (!response.ok) throw new Error(`Leaderboard submission failed (${response.status})`);
+  if (!response.ok) {
+    throw new LeaderboardRequestError(`Leaderboard submission failed (${response.status})`, response.status);
+  }
   const payload = (await response.json()) as { entries?: LeaderboardEntry[] };
+  localStorage.removeItem(pendingKey);
   return payload.entries ?? [];
+}
+
+export async function pairBooth(config: EventConfig, code: string): Promise<void> {
+  const response = await fetch(
+    `${config.apiUrl}/events/${encodeURIComponent(config.eventId)}/booths/${encodeURIComponent(config.boothId)}/pair`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code: code.trim() }),
+    },
+  );
+  if (!response.ok) throw new Error(`Booth pairing failed (${response.status})`);
+  const payload = (await response.json()) as { token?: string };
+  if (!payload.token) throw new Error("Booth pairing returned no token");
+  localStorage.setItem(tokenKey(config), payload.token);
+}
+
+export function boothIsPaired(config: EventConfig): boolean {
+  return Boolean(boothToken(config));
 }
 
 export async function fetchLeaderboard(config: EventConfig): Promise<LeaderboardEntry[]> {
@@ -103,6 +143,14 @@ export async function fetchLeaderboard(config: EventConfig): Promise<Leaderboard
   if (!response.ok) throw new Error(`Leaderboard request failed (${response.status})`);
   const payload = (await response.json()) as { entries?: LeaderboardEntry[] };
   return payload.entries ?? [];
+}
+
+function boothToken(config: EventConfig): string | null {
+  return localStorage.getItem(tokenKey(config));
+}
+
+function tokenKey(config: EventConfig): string {
+  return `${TOKEN_PREFIX}${config.apiUrl}:${config.eventId}:${config.boothId}`;
 }
 
 function readStoredRun(): StoredRun | undefined {

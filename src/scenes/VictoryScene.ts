@@ -6,6 +6,7 @@ import {
   eventConfigFromLocation,
   submitRun,
   calculateScore,
+  LeaderboardRequestError,
 } from "../systems/EventLeaderboard";
 
 /**
@@ -69,19 +70,30 @@ export class VictoryScene extends Phaser.Scene {
       wordWrap: { width: w - 260 },
     }).setOrigin(0.5);
     if (event && run) {
-      leaderboardStatus.setText(`Submitting ${run.nickname}'s score...`);
-      void submitRun(event, run)
-        .then((entries) => {
+      const attemptSubmission = () => {
+        leaderboardStatus.setText(`Submitting ${run.nickname}'s score...`);
+        void submitRun(event, run).then((entries) => {
           const score = calculateScore(run);
           const rank = entries.find((entry) => entry.runId === run.runId)?.rank;
           leaderboardStatus.setText(
             rank ? `Event score: ${score.toLocaleString()} • Rank ${rank}` : `Event score: ${score.toLocaleString()}`,
           );
-        })
-        .catch(() => {
-          leaderboardStatus.setText("Score pending - check the booth connection and try again.");
+        }).catch((error: unknown) => {
+          if (error instanceof LeaderboardRequestError && error.status < 500) {
+            leaderboardStatus.setText(
+              error.status === 409
+                ? "This event is closed. The final leaderboard is frozen."
+                : "Score rejected. Ask event staff to check this booth.",
+            );
+            leaderboardStatus.setColor("#ffb86b");
+            return;
+          }
+          leaderboardStatus.setText("Score pending - retrying when the booth reconnects.");
           leaderboardStatus.setColor("#ffb86b");
+          this.time.delayedCall(5_000, attemptSubmission);
         });
+      };
+      attemptSubmission();
     } else if (event) {
       leaderboardStatus.setText("Event mode is ready. Start a new run to submit a score.");
     }

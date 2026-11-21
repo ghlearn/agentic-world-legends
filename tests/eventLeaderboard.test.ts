@@ -1,15 +1,33 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   beginRun,
+  boothIsPaired,
   calculateScore,
   currentRun,
   eventConfigFromLocation,
+  pairBooth,
   recordCredential,
+  submitRun,
 } from "../src/systems/EventLeaderboard";
+
+function memoryStorage(): Storage {
+  const values = new Map<string, string>();
+  return {
+    get length() { return values.size; },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => [...values.keys()][index] ?? null,
+    removeItem: (key) => { values.delete(key); },
+    setItem: (key, value) => { values.set(key, value); },
+  };
+}
 
 describe("EventLeaderboard", () => {
   beforeEach(() => {
+    vi.stubGlobal("sessionStorage", memoryStorage());
+    vi.stubGlobal("localStorage", memoryStorage());
     sessionStorage.clear();
+    localStorage.clear();
   });
 
   it("only enables event mode when URL and API configuration are complete", () => {
@@ -40,5 +58,30 @@ describe("EventLeaderboard", () => {
   it("rewards completion and accuracy while capping speed points at zero", () => {
     expect(calculateScore({ credentialsCompleted: 6, wrongAnswers: 0, elapsedMs: 1_000 })).toBe(6_999);
     expect(calculateScore({ credentialsCompleted: 6, wrongAnswers: 8, elapsedMs: 700_000 })).toBe(6_000);
+  });
+
+  it("pairs a booth once and authorizes its score submission", async () => {
+    const config = { eventId: "demo", boothId: "A", apiUrl: "https://api.example" };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ token: "booth-token" }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ entries: [] }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await pairBooth(config, "PAIR-CODE");
+    expect(boothIsPaired(config)).toBe(true);
+    await submitRun(config, {
+      runId: "run-1",
+      nickname: "Player",
+      eventId: "demo",
+      boothId: "A",
+      credentialsCompleted: 6,
+      wrongAnswers: 0,
+      elapsedMs: 10_000,
+    });
+
+    expect(fetchMock.mock.calls[1][1]?.headers).toMatchObject({
+      authorization: "Bearer booth-token",
+    });
+    expect(localStorage.length).toBe(1);
   });
 });

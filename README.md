@@ -151,11 +151,16 @@ link, then give each booth a URL such as:
 
 Players enter a nickname once per run. The game submits a unique run ID when
 the Mainline is restored; retries keep the run's timer and mistake count in
-session storage. A public display can use the generated `leaderboard.html`
-page with `?event=demo&booth=display`; it refreshes every five seconds.
+session storage. Staff pair each booth once using a single-use code; the
+resulting browser credential remains in local storage between players. A
+public display can use the generated `leaderboard.html` page with
+`?event=demo&booth=display`; it refreshes every five seconds.
 
-The API contract is documented in [`docs/event-leaderboard.md`](docs/event-leaderboard.md).
-No storage keys or booth secrets are shipped to browsers.
+The deployable Azure Functions service and organizer endpoints are documented
+in [`docs/event-leaderboard.md`](docs/event-leaderboard.md). No storage keys
+or organizer secrets are shipped to browsers. Prize events should use
+staff-supervised booth browsers because browser-reported gameplay cannot be
+made fully cheat-proof.
 
 For local canvas mode, local browser run, and local CI-equivalent checks, see:
 [`docs/local-development.md`](docs/local-development.md).
